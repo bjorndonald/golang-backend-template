@@ -1,42 +1,27 @@
 version: '1.0'
 services:
-
-  # postgres-db:
-  #   container_name: postgres-db
-  #   image: postgres:16-bookworm
-  #   command: postgres -c config_file=/var/lib/postgresql/data/postgresql.conf
-  #   restart: on-failure
-  #   env_file: .env
-  #   ports:
-  #     - '${POSTGRES_PORT}:${POSTGRES_PORT}'
-  #   volumes:
-  #     - postgresql:/data/postgresql
-  #     - ./files/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
-  #     - /Library/PostgreSQL/16/data/postgresql.conf:/etc/postgresql/postgresql.conf
-  #   networks:
-  #     - APPNet
   postgres-db:
     container_name: postgres-db
     image: postgres:16-bookworm
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 230694
-      POSTGRES_DB: lasgcce
-    # volumes:
-      # - postgresql:/data/postgresql
+      POSTGRES_PASSWORD: 0123456789
+      POSTGRES_DB: golang-backend-template
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
       # - postgres-data:/var/lib/postgresql/data
       # - ./pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
     networks:
       - APPNet
     ports:
       - "5432:5432"
-  
+
   swagger-docs:
     image: swaggerapi/swagger-ui
     container_name: swagger-docs
     restart: on-failure
     volumes:
-      - ./docs/swagger.json:/docs/swagger.json
+      - ./backend/docs/swagger.json:/docs/swagger.json
     environment:
       SWAGGER_JSON: /docs/swagger.json
     ports:
@@ -74,25 +59,39 @@ services:
     
   api:
     image: cosmtrek/air
-    container_name: api
+    container_name: golang-backend-template-api
     restart: on-failure
     env_file: 
-      - .env
+      - ./backend/.env
     ports:
-      -  '${PORT}:${PORT}'
+      -  '8000:8000'
     volumes:
-      - '../lasgcce:/lasgcce'
+      - './backend:/golang-backend-template'
       - '~/.ssh/id_rsa:/root/.ssh/id_rsa'
       - '~/.ssh/known_hosts:/root/.ssh/known_hosts'
       - '~/.gitconfig:/root/.gitconfig'
-      - '../lasgcce/docs:/lasgcce/docs'
-    working_dir: '/lasgcce'
+      - './backend/docs:/golang-backend-template/docs'
+    working_dir: '/golang-backend-template'
     networks:
       - APPNet
     depends_on:
       - postgres-db
-      
-
+  
+  # web:
+  #   image: node:18-alpine
+  #   container_name: golang-backend-template-web
+  #   working_dir: /app
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./frontend:/app
+  #     - ./frontend/node_modules:/app/node_modules
+  #   command: sh -c "npm install && npm run dev"
+  #   networks:
+  #     - APPNet
+  #   depends_on:
+  #     api: 
+  #       condition: service_completed_successfully
 networks:
   APPNet:
     driver: bridge
