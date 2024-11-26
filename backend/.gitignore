@@ -1,6 +1,0 @@
-.bin/*
-.env.prod
-.env
-*.env
-*.exe
-postgres-data

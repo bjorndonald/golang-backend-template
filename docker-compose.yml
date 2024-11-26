@@ -21,7 +21,7 @@ services:
     container_name: swagger-docs
     restart: on-failure
     volumes:
-      - ./backend/docs/swagger.json:/docs/swagger.json
+      - ./docs/swagger.json:/docs/swagger.json
     environment:
       SWAGGER_JSON: /docs/swagger.json
     ports:
@@ -62,15 +62,15 @@ services:
     container_name: golang-backend-template-api
     restart: on-failure
     env_file: 
-      - ./backend/.env
+      - ./.env
     ports:
       -  '8000:8000'
     volumes:
-      - './backend:/golang-backend-template'
+      - '.:/golang-backend-template'
       - '~/.ssh/id_rsa:/root/.ssh/id_rsa'
       - '~/.ssh/known_hosts:/root/.ssh/known_hosts'
       - '~/.gitconfig:/root/.gitconfig'
-      - './backend/docs:/golang-backend-template/docs'
+      - './docs:/golang-backend-template/docs'
     working_dir: '/golang-backend-template'
     networks:
       - APPNet
